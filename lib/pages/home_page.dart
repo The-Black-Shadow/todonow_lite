@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:todonow_lite/data/database.dart';
+import 'package:todonow_lite/utils/ad_mob_services.dart';
 import 'package:todonow_lite/utils/dialog_box.dart';
 import 'package:todonow_lite/utils/todo_tile.dart';
 
@@ -12,10 +15,21 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  BannerAd? _bannerAd;
   final _myBox = Hive.box('mybox');
   final _controller = TextEditingController();
   //todo list
   ToDoDataBase db = ToDoDataBase();
+  //banner ads
+  //save new task
+  void saveNewTask() {
+    setState(() {
+      db.toDoList.add([_controller.text, false]);
+      _controller.clear();
+    });
+    Navigator.of(context).pop();
+    db.updateDatabase();
+  }
 
   @override
   void initState() {
@@ -24,7 +38,9 @@ class _HomePageState extends State<HomePage> {
     } else {
       db.loadData();
     }
+
     super.initState();
+    _createBannerAd();
   }
 
   //checkbox changed
@@ -32,16 +48,6 @@ class _HomePageState extends State<HomePage> {
     setState(() {
       db.toDoList[index][1] = !db.toDoList[index][1];
     });
-    db.updateDatabase();
-  }
-
-  //save new task
-  void saveNewTask() {
-    setState(() {
-      db.toDoList.add([_controller.text, false]);
-      _controller.clear();
-    });
-    Navigator.of(context).pop();
     db.updateDatabase();
   }
 
@@ -67,12 +73,26 @@ class _HomePageState extends State<HomePage> {
     db.updateDatabase();
   }
 
+// banner ad
+  void _createBannerAd() {
+    _bannerAd = BannerAd(
+      size: AdSize.fullBanner,
+      adUnitId: AdMobService.getAdMobAppId!,
+      listener: AdMobService.bannerListener,
+      request: const AdRequest(),
+    )..load();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.cyan[200],
+      backgroundColor: Color(0xFFD4F1F4),
       appBar: AppBar(
-        title: const Text('ToDoNow'),
+        backgroundColor: Color(0xFF00b4d8),
+        title: Text(
+          'ToDoNow-lite',
+          style: TextStyle(fontFamily: GoogleFonts.pacifico().fontFamily),
+        ),
         elevation: 0,
       ),
       floatingActionButton: FloatingActionButton(
@@ -90,6 +110,13 @@ class _HomePageState extends State<HomePage> {
           );
         },
       ),
+      bottomNavigationBar: _bannerAd == null
+          ? Container()
+          : Container(
+              margin: const EdgeInsets.only(bottom: 1, top: 10),
+              height: 60,
+              child: AdWidget(ad: _bannerAd!),
+            ),
     );
   }
 }
