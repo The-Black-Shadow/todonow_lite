@@ -2,30 +2,36 @@ import 'package:flutter/material.dart';
 import 'package:todonow_lite/utils/my_button.dart';
 
 class DialogBox extends StatelessWidget {
-  final controller;
-  VoidCallback onSave;
-  VoidCallback onCancel;
+  final TextEditingController controller;
+  final VoidCallback onSave;
+  final VoidCallback onCancel;
+
   DialogBox({
-    super.key,
+    Key? key,
     required this.controller,
     required this.onSave,
     required this.onCancel,
-  });
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      backgroundColor: Colors.cyan[300],
-      content: Container(
-        height: 120,
+      backgroundColor: Color(0xFFcaf0f8),
+      content: SizedBox(
+        height: 200, // Adjust height as needed
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-            TextField(
-              controller: controller,
-              decoration: InputDecoration(
+            Expanded(
+              child: TextField(
+                controller: controller,
+                maxLines: null, // Allows the TextField to expand vertically
+                expands: true, // Allows the TextField to expand vertically
+                decoration: const InputDecoration(
                   border: OutlineInputBorder(),
-                  hintText: 'Add a new task here'),
+                  hintText: 'Add a new task here',
+                ),
+              ),
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
